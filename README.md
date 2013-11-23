@@ -3,7 +3,7 @@ play-wished
 
 Simple wrapper for Play Framework 2 in-app exceptions
 
-How do you handle exceptions in your Play application?
+How do you handle unwished paths in your Play application?
 -----------
 
 You may wrap your syncronous code with try-catch in every action or in business layer.
@@ -25,4 +25,4 @@ So that you could `throw Unwished.BadRequest` (it's a val) or `throw Unwished.In
 
 Other libraries could inherit from `Unwished` and provide response status codes.
 
-Handling unhappy, unwished paths are easy again ;)
+Handling unhappy, unwished paths is easy again ;)
