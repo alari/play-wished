@@ -19,7 +19,7 @@ object Unwished {
 
   private def recover(p: Promise[SimpleResult]): PartialFunction[Throwable, Unit] = {
     case u: Unwished[_] =>
-      play.api.Logger.debug("recover unwished", u)
+      play.api.Logger.debug(s"recover unwished # ${u.httpStatus}", u)
       p success u.response
   }
 
