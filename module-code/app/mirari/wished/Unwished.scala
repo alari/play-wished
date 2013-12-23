@@ -21,6 +21,9 @@ object Unwished {
     case u: Unwished[_] =>
       play.api.Logger.debug(s"recover unwished # ${u.httpStatus} $u", u)
       p success u.response
+    case e: Throwable =>
+      play.api.Logger.error("Exception during request", e)
+      p success Results.InternalServerError
   }
 
   def wrap(f: => Future[SimpleResult]): Future[SimpleResult] = {
