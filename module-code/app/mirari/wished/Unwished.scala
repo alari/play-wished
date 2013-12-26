@@ -21,6 +21,11 @@ object Unwished {
     case u: Unwished[_] =>
       play.api.Logger.debug(s"recover unwished # ${u.httpStatus} $u", u)
       p success u.response
+      
+    case e: akka.pattern.AskTimeoutException =>
+      play.api.Logger.error("? timed out", e)
+      p success Results.RequestTimeout
+      
     case e: Throwable =>
       play.api.Logger.error("Exception during request", e)
       p success Results.InternalServerError
