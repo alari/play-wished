@@ -17,19 +17,25 @@ class Unwished[K](val httpStatus: Int, content: => Option[Unwished.Content[K]]) 
 
 object Unwished {
 
+  case class Content[C](content: C, writeable: play.api.http.Writeable[C])
+
   private def recover(p: Promise[SimpleResult]): PartialFunction[Throwable, Unit] = {
     case u: Unwished[_] =>
-      play.api.Logger.debug(s"recover unwished # ${u.httpStatus} $u", u)
+      play.api.Logger.debug(s"Recover # ${u.httpStatus} $u", u)
       p success u.response
       
     case e: akka.pattern.AskTimeoutException =>
-      play.api.Logger.error("? timed out", e)
+      play.api.Logger.error("Akka ask ? timed out", e)
       p success Results.RequestTimeout
       
     case e: Throwable =>
       play.api.Logger.error("Exception during request", e)
       p success Results.InternalServerError
   }
+
+  def forCode[K](httpStatus: Int, content: K)(implicit writeable: play.api.http.Writeable[K]) = new Unwished(httpStatus, Some(Content(content, writeable)))
+
+  def forCode(httpStatus: Int) = new Unwished[Nothing](httpStatus, None)
 
   def wrap(f: => Future[SimpleResult]): Future[SimpleResult] = {
     val p = promise[SimpleResult]()
@@ -53,7 +59,7 @@ object Unwished {
     case Left(ko) => Future(Left(ko))
   }
 
-  case class Content[C](content: C, writeable: play.api.http.Writeable[C])
+
 
   import play.api.http.Status._
 
@@ -158,9 +164,4 @@ object Unwished {
   def UriTooLong[C](content: => C)(implicit writeable: play.api.http.Writeable[C]) = new Unwished[C](REQUEST_URI_TOO_LONG, Some(Content(content, writeable)))
 
   implicit def toLeft[C, K](un: Unwished[K]): Left[Unwished[K], C] = Left(un)
-}
-
-object WishedAction extends ActionBuilder[Request] {
-  protected def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[SimpleResult]): Future[SimpleResult] =
-    Unwished wrap block(request)
 }
