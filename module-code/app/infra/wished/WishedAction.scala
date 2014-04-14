@@ -9,5 +9,5 @@ import scala.concurrent.Future
  */
 object WishedAction extends ActionBuilder[Request] {
   protected def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[SimpleResult]): Future[SimpleResult] =
-    Unwished wrap block(request)
+    Unwished.wrap(block(request))(request)
 }
