@@ -1,4 +1,4 @@
-package mirari.wished
+package infra.wished
 
 import play.api.mvc.{SimpleResult, Request, ActionBuilder}
 import scala.concurrent.Future

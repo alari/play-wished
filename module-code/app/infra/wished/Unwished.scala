@@ -1,6 +1,6 @@
-package mirari.wished
+package infra.wished
 
-import play.api.mvc.{Request, ActionBuilder, Results, SimpleResult}
+import play.api.mvc.{RequestHeader, Results, SimpleResult}
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 
@@ -13,23 +13,27 @@ class Unwished[K](val httpStatus: Int, content: => Option[Unwished.Content[K]]) 
 
   lazy val response: SimpleResult =
     content.map(c => Results.Status(httpStatus)(c.content)(c.writeable)).getOrElse(Results.Status(httpStatus))
+
+  override def toString = {
+    response.toString()
+  }
 }
 
 object Unwished {
 
   case class Content[C](content: C, writeable: play.api.http.Writeable[C])
 
-  private def recover(p: Promise[SimpleResult]): PartialFunction[Throwable, Unit] = {
+  private def recover(p: Promise[SimpleResult])(implicit rh: RequestHeader): PartialFunction[Throwable, Unit] = {
     case u: Unwished[_] =>
-      play.api.Logger.debug(s"Recover # ${u.httpStatus} $u", u)
+      play.api.Logger.debug(s"(${rh.uri}) Recover # ${u.httpStatus}", u)
       p success u.response
-      
+
     case e: akka.pattern.AskTimeoutException =>
-      play.api.Logger.error("Akka ask ? timed out", e)
+      play.api.Logger.error(s"(${rh.uri}) Akka ask ? timed out", e)
       p success Results.RequestTimeout
-      
+
     case e: Throwable =>
-      play.api.Logger.error("Exception during request", e)
+      play.api.Logger.error(s"(${rh.uri}) Exception during request", e)
       p success Results.InternalServerError
   }
 
@@ -37,7 +41,7 @@ object Unwished {
 
   def forCode(httpStatus: Int) = new Unwished[Nothing](httpStatus, None)
 
-  def wrap(f: => Future[SimpleResult]): Future[SimpleResult] = {
+  def wrap(f: => Future[SimpleResult])(implicit rh: RequestHeader): Future[SimpleResult] = {
     val p = promise[SimpleResult]()
 
     try {
@@ -58,7 +62,6 @@ object Unwished {
     case Right(ok) => t(ok)
     case Left(ko) => Future(Left(ko))
   }
-
 
 
   import play.api.http.Status._
