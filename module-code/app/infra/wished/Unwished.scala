@@ -3,6 +3,7 @@ package infra.wished
 import play.api.mvc.{RequestHeader, Results, SimpleResult}
 import scala.concurrent._
 import ExecutionContext.Implicits.global
+import play.api.libs.json.Json
 
 
 /**
@@ -27,6 +28,10 @@ object Unwished {
     case u: Unwished[_] =>
       play.api.Logger.debug(s"(${rh.uri}) Recover # ${u.httpStatus}", u)
       p success u.response
+
+    case e: JsonApiError =>
+      play.api.Logger.debug(s"(${rh.uri}) ApiError: $e")
+      p.success(Results.Status(e.status)(Json.toJson(e)))
 
     case e: akka.pattern.AskTimeoutException =>
       play.api.Logger.error(s"(${rh.uri}) Akka ask ? timed out", e)

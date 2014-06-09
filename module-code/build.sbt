@@ -2,7 +2,7 @@ name := "play-wished"
 
 organization := "play-infra"
 
-version := "0.1"
+version := "0.2"
 
 play.Project.playScalaSettings
 
