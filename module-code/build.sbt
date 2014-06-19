@@ -2,9 +2,11 @@ name := "play-wished"
 
 organization := "play-infra"
 
-version := "0.2"
+version := "0.3.0"
 
-play.Project.playScalaSettings
+crossScalaVersions := Seq("2.10.4", "2.11.1")
+
+lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 scalacOptions ++= Seq(
   "-unchecked",

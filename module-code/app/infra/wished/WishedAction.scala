@@ -1,6 +1,6 @@
 package infra.wished
 
-import play.api.mvc.{SimpleResult, Request, ActionBuilder}
+import play.api.mvc.{Result, Request, ActionBuilder}
 import scala.concurrent.Future
 
 /**
@@ -8,6 +8,6 @@ import scala.concurrent.Future
  * @since 2/20/14
  */
 object WishedAction extends ActionBuilder[Request] {
-  protected def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[SimpleResult]): Future[SimpleResult] =
+  protected def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] =
     Unwished.wrap(block(request))(request)
 }

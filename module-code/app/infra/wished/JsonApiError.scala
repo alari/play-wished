@@ -1,6 +1,7 @@
 package infra.wished
 
 import play.api.libs.json._
+import play.api.mvc.{Results, Result}
 
 /**
  * @author alari
@@ -11,6 +12,7 @@ case class JsonApiError(status: Int, code: String, summary: String, service: Str
 }
 
 object JsonApiError {
-  implicit val w: Writes[JsonApiError] = (__ \ "failure").write(Json.writes[JsonApiError])
-  implicit val r: Reads[JsonApiError] = (__ \ "failure").read(Json.reads[JsonApiError])
+  implicit val f: Format[JsonApiError] = (__ \ "failure").format(Json.writes[JsonApiError])
+  implicit def toResp(err: JsonApiError): Result = Results.Status(err.status)(Json.toJson(err))
+  implicit def toJson(err: JsonApiError): JsValue = Json.toJson(err)
 }
