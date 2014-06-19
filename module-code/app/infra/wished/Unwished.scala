@@ -2,7 +2,7 @@ package infra.wished
 
 import play.api.mvc.{Result, RequestHeader, Results}
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
-import scala.concurrent.{Future, Promise, promise}
+import scala.concurrent.{Future, Promise}
 
 
 /**
@@ -25,7 +25,7 @@ object Unwished {
   }
 
   def wrap(f: => Future[Result])(implicit rh: RequestHeader): Future[Result] = {
-    val p = promise[Result]()
+    val p = Promise[Result]()
 
     try {
       val result = f
