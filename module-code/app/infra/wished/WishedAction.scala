@@ -8,6 +8,6 @@ import scala.concurrent.Future
  * @since 2/20/14
  */
 object WishedAction extends ActionBuilder[Request] {
-  protected def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] =
+  def invokeBlock[A](request: Request[A], block: (Request[A]) => Future[Result]): Future[Result] =
     Unwished.wrap(block(request))(request)
 }
