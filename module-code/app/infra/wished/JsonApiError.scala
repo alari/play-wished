@@ -12,7 +12,7 @@ case class JsonApiError(status: Int, code: String, summary: String, service: Str
 }
 
 object JsonApiError {
-  implicit val f: Format[JsonApiError] = (__ \ "failure").format(Json.writes[JsonApiError])
+  implicit val f: Format[JsonApiError] = (__ \ "failure").format(Json.writes[JsonApiError])(Json.reads[JsonApiError])
   implicit def toResp(err: JsonApiError): Result = Results.Status(err.status)(Json.toJson(err))
   implicit def toJson(err: JsonApiError): JsValue = Json.toJson(err)
 }
